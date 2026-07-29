@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="Jutsack üretim, mağaza, stok, kargo, B2C e-ticaret, B2B satış, dijital pazarlama ve raporlama süreçlerini tek ekranda gösteren operasyonel komuta merkezi." name="description"/>
+<meta content="#0d0d0d" name="theme-color"/>
+<title>Jutsack Operasyonel Komuta Merkezi</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            luxury: {
+              black: "#0B0B0B",
+              ink: "#171717",
+              ivory: "#F7F3EC",
+              sand: "#E8DFD1",
+              gold: "#B8955A",
+              goldLight: "#D8C29B",
+              emerald: "#1F5C4A",
+              purple: "#6654A8"
+            }
+          },
+          fontFamily: {
+            sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+            serif: ["Georgia", "Times New Roman", "serif"]
+          },
+          boxShadow: {
+            luxury: "0 24px 70px rgba(15, 15, 15, 0.10)",
+            card: "0 16px 40px rgba(15, 15, 15, 0.08)"
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    html { scroll-behavior: smooth; }
+    body {
+      background:
+        radial-gradient(circle at 10% 0%, rgba(184,149,90,.12), transparent 30rem),
+        radial-gradient(circle at 100% 30%, rgba(31,92,74,.10), transparent 34rem),
+        #F7F3EC;
+    }
+    .grain {
+      background-image:
+        linear-gradient(rgba(255,255,255,.02), rgba(255,255,255,.02)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0, rgba(255,255,255,.02) 1px, transparent 1px, transparent 3px);
+    }
+    .gold-line {
+      background: linear-gradient(90deg, transparent, #B8955A, transparent);
+      height: 1px;
+    }
+    .flow-arrow {
+      position: relative;
+    }
+    .flow-arrow::after {
+      content: "↓";
+      position: absolute;
+      left: 50%;
+      bottom: -28px;
+      transform: translateX(-50%);
+      color: #B8955A;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .flow-arrow:last-child::after { display: none; }
+
+    .status-dot {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(31,92,74,.45); }
+      70% { box-shadow: 0 0 0 11px rgba(31,92,74,0); }
+      100% { box-shadow: 0 0 0 0 rgba(31,92,74,0); }
+    }
+
+    @media print {
+      body { background: #fff !important; }
+      .no-print { display: none !important; }
+      .print-card { break-inside: avoid; }
+      header { min-height: auto !important; }
+    }
+  
+    /* Teknik kavram açıklamaları */
+    .glossary-term {
+      cursor: help;
+      border-bottom: 1px dotted currentColor;
+      text-decoration: none;
+      font-weight: 650;
+      outline: none;
+      transition: opacity .2s ease, background-color .2s ease;
+    }
+    .glossary-term:hover,
+    .glossary-term:focus-visible,
+    .glossary-term.is-active {
+      background: rgba(184,149,90,.14);
+      border-radius: .3rem;
+      opacity: .95;
+    }
+    #global-tooltip {
+      position: fixed;
+      z-index: 9999;
+      width: min(320px, calc(100vw - 32px));
+      padding: 12px 14px;
+      border: 1px solid rgba(216,194,155,.45);
+      border-radius: 14px;
+      background: rgba(11,11,11,.97);
+      color: #fff;
+      font-size: 12px;
+      line-height: 1.6;
+      box-shadow: 0 18px 50px rgba(0,0,0,.28);
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .16s ease, transform .16s ease;
+    }
+    #global-tooltip.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .glossary-help {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      border: 1px solid rgba(184,149,90,.22);
+      border-radius: 999px;
+      background: rgba(255,255,255,.74);
+      padding: .6rem .9rem;
+      color: #6b6255;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      box-shadow: 0 8px 24px rgba(15,15,15,.05);
+    }
+    @media print {
+      #global-tooltip,
+      .glossary-help { display: none !important; }
+      .glossary-term { border-bottom: 0; }
+    }
+</style>
+</head>
+<body class="min-h-screen text-luxury-ink antialiased">
+<!-- HERO -->
+<header class="grain relative overflow-hidden bg-luxury-black text-white">
+<div class="absolute -left-24 -top-24 h-80 w-80 rounded-full bg-luxury-gold/20 blur-3xl"></div>
+<div class="absolute -right-20 top-24 h-96 w-96 rounded-full bg-luxury-emerald/20 blur-3xl"></div>
+<div class="relative mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-20">
+<nav class="mb-14 flex items-center justify-between">
+<div>
+<p class="font-serif text-2xl tracking-wide">JUTSACK</p>
+<p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.30em] text-white/45">Operational Intelligence</p>
+</div>
+<div class="no-print hidden items-center gap-3 sm:flex">
+<span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80">
+<span class="status-dot h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+            Operasyon Aktif
+          </span>
+<button class="rounded-full border border-luxury-gold/40 bg-luxury-gold/10 px-4 py-2 text-xs font-bold tracking-wide text-luxury-goldLight transition hover:bg-luxury-gold hover:text-black" onclick="window.print()">
+            PDF / YAZDIR
+          </button>
+</div>
+</nav>
+<div class="grid items-end gap-10 lg:grid-cols-[1.2fr_.8fr]">
+<div>
+<p class="mb-5 text-xs font-black uppercase tracking-[0.32em] text-luxury-goldLight">Üretimden teslimata tek merkez</p>
+<h1 class="max-w-4xl font-serif text-5xl leading-[1.02] tracking-tight md:text-7xl">
+            Jutsack Operasyonel
+            <span class="block italic text-luxury-goldLight">Komuta Merkezi</span>
+</h1>
+<p class="mt-7 max-w-2xl text-base leading-8 text-white/65 md:text-lg">
+            Üretim, mağaza, stok, kargo, müşteri yönlendirme, <span aria-label="B2C: Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." class="glossary-term" data-tooltip="Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." tabindex="0">B2C</span> e-ticaret, <span aria-label="B2B: Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." class="glossary-term" data-tooltip="Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." tabindex="0">B2B</span> satış,
+            yaratıcı pazarlama, dijital strateji ve performans raporlamasını tek bir görünür sistemde birleştiren operasyonel iş akış şeması.
+          </p>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="rounded-2xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+<span class="font-serif text-4xl text-luxury-goldLight">4</span>
+<p class="mt-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/45">Ana Sorumluluk Alanı</p>
+</div>
+<div class="rounded-2xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+<span class="font-serif text-4xl text-luxury-goldLight">2</span>
+<p class="mt-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/45">Satış Kanalı</p>
+</div>
+<div class="rounded-2xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+<span class="font-serif text-4xl text-luxury-goldLight">5</span>
+<p class="mt-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/45">Üretim Aşaması</p>
+</div>
+<div class="rounded-2xl border border-white/10 bg-white/[0.06] p-5 backdrop-blur">
+<span class="font-serif text-4xl text-luxury-goldLight">3</span>
+<p class="mt-2 text-[11px] font-bold uppercase tracking-[0.18em] text-white/45">Altın Operasyon Kuralı</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="mx-auto max-w-7xl space-y-10 px-5 py-10 md:px-8 md:py-16">
+<!-- INTRO -->
+<section class="print-card overflow-hidden rounded-[2rem] border border-black/5 bg-white shadow-luxury">
+<div class="grid lg:grid-cols-[.9fr_1.1fr]">
+<div class="bg-luxury-emerald p-8 text-white md:p-10">
+<p class="text-xs font-black uppercase tracking-[0.25em] text-luxury-goldLight">Operasyonun Büyük Resmi</p>
+<h2 class="mt-4 font-serif text-3xl leading-tight md:text-4xl">Harika bir ekip yapınız var.</h2>
+<div class="gold-line my-7"></div>
+<p class="text-sm leading-7 text-white/75">
+            Bu operasyonu bir <strong class="text-white">“Operasyonel Komuta Merkezi”</strong> olarak görselleştirmek,
+            ekibinizdeki herkesin sorumluluk alanını ve iş akışındaki yerini anlamasını sağlar.
+          </p>
+</div>
+<div class="p-8 md:p-10">
+<p class="text-sm leading-7 text-slate-600 md:text-base">
+            Aşağıda, belirlenen tüm görev dağılımlarını, <span aria-label="B2C: Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." class="glossary-term" data-tooltip="Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." tabindex="0">B2C</span> ve <span aria-label="B2B: Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." class="glossary-term" data-tooltip="Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." tabindex="0">B2B</span> süreçlerini ve üretim akışını içeren
+            şık ve modern bir <strong class="text-luxury-black">Jutsack Operasyonel İş Akış Şeması</strong> yer alır.
+          </p>
+<p class="mt-5 text-sm leading-7 text-slate-600 md:text-base">
+            Bu infografik; ekip sorumluluklarını net biçimde ayırırken, üretimden çıkan bir ürünün
+            hangi yollarla son kullanıcıya veya mağazaya ulaştığını görsel bir bütünlük içinde sunar.
+            Mobil, tablet ve masaüstü ekranlarda uyumlu çalışır.
+          </p>
+</div>
+</div>
+</section><div class="flex justify-center -mt-4"><p class="glossary-help">ⓘ Altı noktalı teknik kavramların üzerine gelin; mobilde dokunun.</p></div>
+<!-- TEAM -->
+<section aria-labelledby="team-title">
+<div class="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+<div>
+<p class="text-xs font-black uppercase tracking-[0.24em] text-luxury-gold">Ekip ve Sorumluluklar</p>
+<h2 class="mt-2 font-serif text-3xl md:text-4xl" id="team-title">Görev Dağılımı</h2>
+</div>
+<p class="max-w-xl text-sm leading-6 text-slate-500">Her operasyon alanı için tek ve görünür bir sahiplik modeli.</p>
+</div>
+<div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+<!-- ZEYNEP -->
+
+<!-- SENA -->
+
+<!-- SEMAY -->
+
+<article class="print-card group overflow-hidden rounded-[2rem] border border-black/5 bg-white shadow-card transition duration-300 hover:-translate-y-1">
+<div class="h-1.5 bg-luxury-purple"></div>
+<div class="p-7">
+<div class="flex items-start justify-between gap-4">
+<div>
+<p class="text-[11px] font-black uppercase tracking-[0.22em] text-luxury-purple">Üretim Yönetimi</p>
+<h3 class="mt-2 font-serif text-3xl">Zeynep</h3>
+</div>
+<div class="grid h-12 w-12 place-items-center rounded-full bg-luxury-purple/10 font-serif text-xl text-luxury-purple">Z</div>
+</div>
+<p class="mt-6 text-sm leading-7 text-slate-600">
+              Üretim planlaması, desen ve kumaş hazırlığı, baskı, kesim, dikim atölyesi,
+              <span aria-label="kalite kontrol: Ürünün ölçü, dikiş, baskı, renk ve genel kalite standartlarına uygunluğunun denetlenmesidir." class="glossary-term" data-tooltip="Ürünün ölçü, dikiş, baskı, renk ve genel kalite standartlarına uygunluğunun denetlenmesidir." tabindex="0">kalite kontrol</span> ve üretimin zamanında tamamlanmasından uçtan uca sorumludur.
+            </p>
+<ul class="mt-6 space-y-3 text-sm">
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-purple"></span><span>Excel üretim planı, <span aria-label="iş emri: Üretilecek ürün, adet, tarih ve yapılacak işlemleri açıklayan görev kaydıdır." class="glossary-term" data-tooltip="Üretilecek ürün, adet, tarih ve yapılacak işlemleri açıklayan görev kaydıdır." tabindex="0">iş emri</span> ve <span aria-label="termin: Bir işin veya üretimin tamamlanması gereken son tarih ya da teslim süresidir." class="glossary-term" data-tooltip="Bir işin veya üretimin tamamlanması gereken son tarih ya da teslim süresidir." tabindex="0">termin</span> takibi</span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-purple"></span><span>Desen, kumaş ve baskı koordinasyonu</span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-purple"></span><span>Kesim ve dikim atölyesi yönetimi</span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-purple"></span><span><span aria-label="Kalite kontrol: Ürünün ölçü, dikiş, baskı, renk ve genel kalite standartlarına uygunluğunun denetlenmesidir." class="glossary-term" data-tooltip="Ürünün ölçü, dikiş, baskı, renk ve genel kalite standartlarına uygunluğunun denetlenmesidir." tabindex="0">Kalite kontrol</span> ve hatalı ürün ayrıştırma</span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-purple"></span><span>Excel üretim takip listelerinin güncel tutulması</span></li>
+</ul>
+</div>
+</article><article class="print-card group overflow-hidden rounded-[2rem] border border-black/5 bg-white shadow-card transition duration-300 hover:-translate-y-1">
+<div class="h-1.5 bg-[#C57B57]"></div>
+<div class="p-7">
+<div class="flex items-start justify-between gap-4">
+<div>
+<p class="text-[11px] font-black uppercase tracking-[0.22em] text-[#A85F42]">Satış, Pazarlama &amp; <span aria-label="Creative Strateji: Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." class="glossary-term" data-tooltip="Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." tabindex="0">Creative Strateji</span></p>
+<h3 class="mt-2 font-serif text-3xl">Doğal</h3>
+</div>
+<div class="grid h-12 w-12 place-items-center rounded-full bg-[#C57B57]/10 font-serif text-xl text-[#A85F42]">D</div>
+</div>
+<p class="mt-6 text-sm leading-7 text-slate-600">
+      <span aria-label="Doğal satış: Müşteriyi zorlamadan, ihtiyacını anlayarak ürünün faydasını doğru iletişimle anlatan satış yaklaşımıdır." class="glossary-term" data-tooltip="Müşteriyi zorlamadan, ihtiyacını anlayarak ürünün faydasını doğru iletişimle anlatan satış yaklaşımıdır." tabindex="0">Doğal satış</span> yaklaşımı, marka dili, pazarlama yönü, <span aria-label="creative strateji: Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." class="glossary-term" data-tooltip="Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." tabindex="0">creative strateji</span> ve ürünlerin doğru hedef kitleye doğru anlatımla sunulmasından sorumludur.
+    </p>
+<ul class="mt-6 space-y-3 text-sm">
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C57B57]"></span><span><span aria-label="Doğal satış: Müşteriyi zorlamadan, ihtiyacını anlayarak ürünün faydasını doğru iletişimle anlatan satış yaklaşımıdır." class="glossary-term" data-tooltip="Müşteriyi zorlamadan, ihtiyacını anlayarak ürünün faydasını doğru iletişimle anlatan satış yaklaşımıdır." tabindex="0">Doğal satış</span> ve müşteri iletişimi yaklaşımı</span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C57B57]"></span><span>Pazarlama stratejisi ve <span aria-label="marka konumlandırması: Markanın hedef kitlenin zihninde hangi özelliklerle ve hangi farkla yer alacağını belirleyen yaklaşımdır." class="glossary-term" data-tooltip="Markanın hedef kitlenin zihninde hangi özelliklerle ve hangi farkla yer alacağını belirleyen yaklaşımdır." tabindex="0">marka konumlandırması</span></span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C57B57]"></span><span><span aria-label="Creative strateji: Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." class="glossary-term" data-tooltip="Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." tabindex="0">Creative strateji</span> ve kampanya fikri geliştirme</span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C57B57]"></span><span>Ürün hikâyesi ve satış mesajlarının oluşturulması</span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C57B57]"></span><span>B2C ve B2B satış destek yaklaşımının belirlenmesi</span></li>
+</ul>
+</div>
+</article><article class="print-card group overflow-hidden rounded-[2rem] border border-black/5 bg-white shadow-card transition duration-300 hover:-translate-y-1">
+<div class="h-1.5 bg-luxury-emerald"></div>
+<div class="p-7">
+<div class="flex items-start justify-between gap-4">
+<div>
+<p class="text-[11px] font-black uppercase tracking-[0.22em] text-luxury-emerald">Mağaza ve Lojistik</p>
+<h3 class="mt-2 font-serif text-3xl">Sena</h3>
+</div>
+<div class="grid h-12 w-12 place-items-center rounded-full bg-luxury-emerald/10 font-serif text-xl text-luxury-emerald">S</div>
+</div>
+<p class="mt-6 text-sm leading-7 text-slate-600">
+              Mağaza satışları, stok takibi, kargo operasyonu, müşteri yönlendirme,
+              <span aria-label="B2B: Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." class="glossary-term" data-tooltip="Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." tabindex="0">B2B</span> sevkiyat ve iade süreçlerinin doğru ve zamanında yürütülmesinden sorumludur.
+            </p>
+<ul class="mt-6 space-y-3 text-sm">
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-emerald"></span><span>Mağaza satış ve müşteri karşılama</span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-emerald"></span><span>Merkez depo ve mağaza stok takibi</span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-emerald"></span><span><span aria-label="B2C: Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." class="glossary-term" data-tooltip="Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." tabindex="0">B2C</span> kargo hazırlığı ve teslimat kontrolü</span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-emerald"></span><span><span aria-label="B2B: Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." class="glossary-term" data-tooltip="Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." tabindex="0">B2B</span> toplu sevkiyat, <span aria-label="irsaliye: Sevk edilen ürünlerin adını, miktarını ve teslimat bilgilerini gösteren resmi taşıma belgesidir." class="glossary-term" data-tooltip="Sevk edilen ürünlerin adını, miktarını ve teslimat bilgilerini gösteren resmi taşıma belgesidir." tabindex="0">irsaliye</span> ve cari takibi</span></li>
+<li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-emerald"></span><span>Müşteri iade ve değişim yönlendirmeleri</span></li>
+</ul>
+</div>
+</article><article class="print-card group overflow-hidden rounded-[2rem] border border-black/5 bg-white shadow-card transition duration-300 hover:-translate-y-1">
+<div class="h-1.5 bg-luxury-gold"></div>
+<div class="p-7">
+<div class="flex items-start justify-between gap-4">
+<div>
+<p class="text-[11px] font-black uppercase tracking-[0.22em] text-luxury-gold">Digital Marketing, Strateji &amp; Analiz</p>
+<h3 class="mt-2 font-serif text-3xl">Semay</h3>
+</div>
+<div class="grid h-12 w-12 place-items-center rounded-full bg-luxury-gold/15 font-serif text-xl text-luxury-gold">S</div>
+</div>
+<p class="mt-6 text-sm leading-7 text-slate-600">Dijital marketing, B2C ve B2B dijital büyüme planları, reklam yönetimi, veri analizi, KPI takibi ve yönetim raporlamasından sorumludur.</p>
+<ul class="mt-6 space-y-3 text-sm"><li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-gold"></span><span>B2C dijital pazarlama ve e-ticaret büyümesi</span></li><li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-gold"></span><span>B2B dijital satış destek stratejisi</span></li><li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-gold"></span><span>Reklam kampanyaları ve <span aria-label="performans optimizasyonu: Reklam ve dijital çalışmaların verilerini inceleyerek daha iyi sonuç için yapılan düzenlemelerdir." class="glossary-term" data-tooltip="Reklam ve dijital çalışmaların verilerini inceleyerek daha iyi sonuç için yapılan düzenlemelerdir." tabindex="0">performans optimizasyonu</span></span></li><li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-gold"></span><span>Web sitesi, sosyal medya ve dönüşüm analizi</span></li><li class="flex gap-3"><span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-luxury-gold"></span><span>KPI takibi, veri analizi ve yönetim raporlaması</span></li></ul>
+</div>
+</article></div>
+</section>
+<!-- END TO END FLOW -->
+<section class="print-card rounded-[2rem] bg-luxury-black p-6 text-white shadow-luxury md:p-10" id="operasyon-akisi">
+<div class="mb-9 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+<div>
+<p class="text-xs font-black uppercase tracking-[0.24em] text-luxury-goldLight">Uçtan Uca Operasyon</p>
+<h2 class="mt-2 font-serif text-3xl md:text-4xl">Ürün Yolculuğu</h2>
+</div>
+<p class="max-w-2xl text-sm leading-6 text-white/55">
+          Bir ürünün fikirden fiziksel stoka, oradan son kullanıcıya veya <span aria-label="B2B: Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." class="glossary-term" data-tooltip="Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." tabindex="0">B2B</span> satış noktasına ulaşma zinciri.
+        </p>
+</div>
+<div class="grid gap-6 xl:grid-cols-[1fr_1fr_1.3fr]">
+<div class="flow-arrow rounded-3xl border border-white/10 bg-white/[0.05] p-6 xl:flow-arrow-none">
+<span class="font-serif text-4xl text-luxury-goldLight">01</span>
+<h3 class="mt-4 text-lg font-black">Üretim Takibi — Excel Listeleri</h3>
+<p class="mt-3 text-sm leading-6 text-white/55">Sorumlu: Zeynep</p>
+<div class="mt-6 flex flex-wrap gap-2">
+<span class="rounded-full border border-white/10 px-3 py-1.5 text-xs">Desen</span>
+<span class="rounded-full border border-white/10 px-3 py-1.5 text-xs">Kumaş</span>
+<span class="rounded-full border border-white/10 px-3 py-1.5 text-xs">Baskı</span>
+<span class="rounded-full border border-white/10 px-3 py-1.5 text-xs">Kesim</span>
+<span class="rounded-full border border-white/10 px-3 py-1.5 text-xs">Dikim</span>
+</div>
+</div>
+<div class="flow-arrow rounded-3xl border border-white/10 bg-white/[0.05] p-6 xl:flow-arrow-none">
+<span class="font-serif text-4xl text-luxury-goldLight">02</span>
+<h3 class="mt-4 text-lg font-black">Kalite ve Stok Girişi</h3>
+<p class="mt-3 text-sm leading-6 text-white/55">Sorumlu: Zeynep → Sena</p>
+<ol class="mt-6 space-y-3 text-sm text-white/75">
+<li class="flex gap-3"><span class="text-luxury-goldLight">•</span><span aria-label="Kalite kontrol: Ürünün ölçü, dikiş, baskı, renk ve genel kalite standartlarına uygunluğunun denetlenmesidir." class="glossary-term" data-tooltip="Ürünün ölçü, dikiş, baskı, renk ve genel kalite standartlarına uygunluğunun denetlenmesidir." tabindex="0">Kalite kontrol</span></li>
+<li class="flex gap-3"><span class="text-luxury-goldLight">•</span><span aria-label="Barkodlama: Her ürüne sistemde tanınmasını sağlayan benzersiz barkod bilgisinin atanmasıdır." class="glossary-term" data-tooltip="Her ürüne sistemde tanınmasını sağlayan benzersiz barkod bilgisinin atanmasıdır." tabindex="0">Barkodlama</span></li>
+<li class="flex gap-3"><span class="text-luxury-goldLight">•</span><span aria-label="Paraşüt: Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." class="glossary-term" data-tooltip="Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." tabindex="0">Paraşüt</span> stok girişi</li>
+<li class="flex gap-3"><span class="text-luxury-goldLight">•</span>Merkez depo yerleşimi</li>
+</ol>
+</div>
+<div class="rounded-3xl border border-luxury-gold/25 bg-luxury-gold/10 p-6">
+<span class="font-serif text-4xl text-luxury-goldLight">03</span>
+<h3 class="mt-4 text-lg font-black">Satış Kanalına Dağıtım</h3>
+<p class="mt-3 text-sm leading-6 text-white/55">Sena operasyonu yürütür; <span aria-label="Doğal satış: Müşteriyi zorlamadan, ihtiyacını anlayarak ürünün faydasını doğru iletişimle anlatan satış yaklaşımıdır." class="glossary-term" data-tooltip="Müşteriyi zorlamadan, ihtiyacını anlayarak ürünün faydasını doğru iletişimle anlatan satış yaklaşımıdır." tabindex="0">Doğal satış</span>, pazarlama ve <span aria-label="creative strateji: Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." class="glossary-term" data-tooltip="Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." tabindex="0">creative strateji</span>yi, Semay dijital marketing, büyüme, analiz ve raporlamayı yönetir.</p>
+<div class="mt-6 grid gap-4 md:grid-cols-2">
+<div class="rounded-2xl bg-white p-5 text-luxury-black">
+<p class="text-[11px] font-black uppercase tracking-[0.18em] text-luxury-purple"><span aria-label="B2C: Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." class="glossary-term" data-tooltip="Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." tabindex="0">B2C</span> — E-Ticaret</p>
+<h4 class="mt-2 font-serif text-2xl">Online Müşteri</h4>
+<ul class="mt-4 space-y-2 text-sm text-slate-600">
+<li><span aria-label="Vikaon: Jutsack e-ticaret sitesindeki ürün, sipariş ve müşteri süreçlerinin yönetildiği altyapıdır." class="glossary-term" data-tooltip="Jutsack e-ticaret sitesindeki ürün, sipariş ve müşteri süreçlerinin yönetildiği altyapıdır." tabindex="0">Vikaon</span> sipariş girişi</li>
+<li><span aria-label="Paraşüt: Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." class="glossary-term" data-tooltip="Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." tabindex="0">Paraşüt</span> <span aria-label="otomatik fatura: Sipariş oluştuğunda fatura bilgilerinin sistem tarafından otomatik hazırlanmasıdır." class="glossary-term" data-tooltip="Sipariş oluştuğunda fatura bilgilerinin sistem tarafından otomatik hazırlanmasıdır." tabindex="0">otomatik fatura</span></li>
+<li><span aria-label="Stok düşümü: Satılan veya sevk edilen ürün adedinin mevcut stoktan otomatik azaltılmasıdır." class="glossary-term" data-tooltip="Satılan veya sevk edilen ürün adedinin mevcut stoktan otomatik azaltılmasıdır." tabindex="0">Stok düşümü</span> ve sipariş kontrolü</li>
+<li><span aria-label="Yurtiçi Kargo: Siparişlerin müşteriye veya mağazaya gönderilmesi için kullanılan kargo hizmetidir." class="glossary-term" data-tooltip="Siparişlerin müşteriye veya mağazaya gönderilmesi için kullanılan kargo hizmetidir." tabindex="0">Yurtiçi Kargo</span> etiketi</li>
+<li>Paketleme ve gönderim</li>
+<li>İade / değişim yönlendirmesi</li>
+</ul>
+</div>
+<div class="rounded-2xl bg-luxury-emerald p-5 text-white">
+<p class="text-[11px] font-black uppercase tracking-[0.18em] text-luxury-goldLight"><span aria-label="B2B: Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." class="glossary-term" data-tooltip="Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." tabindex="0">B2B</span> — Mağaza</p>
+<h4 class="mt-2 font-serif text-2xl">Kurumsal Satış</h4>
+<ul class="mt-4 space-y-2 text-sm text-white/75">
+<li>Mağaza / bayi siparişi</li>
+<li>Toplu <span aria-label="stok rezervasyonu: Belirli ürün adetlerinin başka siparişlere kapatılarak bir müşteri veya mağaza için ayrılmasıdır." class="glossary-term" data-tooltip="Belirli ürün adetlerinin başka siparişlere kapatılarak bir müşteri veya mağaza için ayrılmasıdır." tabindex="0">stok rezervasyonu</span></li>
+<li><span aria-label="İrsaliye: Sevk edilen ürünlerin adını, miktarını ve teslimat bilgilerini gösteren resmi taşıma belgesidir." class="glossary-term" data-tooltip="Sevk edilen ürünlerin adını, miktarını ve teslimat bilgilerini gösteren resmi taşıma belgesidir." tabindex="0">İrsaliye</span> ve fatura</li>
+<li>Toplu sevkiyat</li>
+<li><span aria-label="Cari borç / alacak: Bir mağaza veya müşteriden alınacak ve ödenecek tutarların karşılıklı takibidir." class="glossary-term" data-tooltip="Bir mağaza veya müşteriden alınacak ve ödenecek tutarların karşılıklı takibidir." tabindex="0">Cari borç / alacak</span> takibi</li>
+<li>Satış sonrası mağaza iletişimi</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- B2C / B2B DETAIL -->
+<section class="grid gap-6 xl:grid-cols-2">
+<article class="print-card overflow-hidden rounded-[2rem] border border-black/5 bg-white shadow-card">
+<div class="bg-luxury-purple p-7 text-white">
+<p class="text-[11px] font-black uppercase tracking-[0.22em] text-white/60"><span aria-label="B2C: Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." class="glossary-term" data-tooltip="Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." tabindex="0">B2C</span> Operasyon Modeli</p>
+<h2 class="mt-2 font-serif text-3xl">E-Ticaret ve Son Kullanıcı</h2>
+</div>
+<div class="p-7">
+<div class="space-y-7">
+<div>
+<p class="text-xs font-black uppercase tracking-[0.18em] text-luxury-purple">Satış ve <span aria-label="Creative Strateji: Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." class="glossary-term" data-tooltip="Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." tabindex="0">Creative Strateji</span> — Doğal</p>
+<p class="mt-2 text-sm leading-6 text-slate-600"><span aria-label="Doğal satış: Müşteriyi zorlamadan, ihtiyacını anlayarak ürünün faydasını doğru iletişimle anlatan satış yaklaşımıdır." class="glossary-term" data-tooltip="Müşteriyi zorlamadan, ihtiyacını anlayarak ürünün faydasını doğru iletişimle anlatan satış yaklaşımıdır." tabindex="0">Doğal satış</span> yaklaşımı, kampanya fikri, ürün hikâyesi, marka dili ve müşteriye sunulacak temel satış mesajlarının oluşturulması.</p>
+</div>
+<div>
+<p class="text-xs font-black uppercase tracking-[0.18em] text-luxury-purple">Sipariş ve Stok — Sena</p>
+<p class="mt-2 text-sm leading-6 text-slate-600"><span aria-label="Vikaon: Jutsack e-ticaret sitesindeki ürün, sipariş ve müşteri süreçlerinin yönetildiği altyapıdır." class="glossary-term" data-tooltip="Jutsack e-ticaret sitesindeki ürün, sipariş ve müşteri süreçlerinin yönetildiği altyapıdır." tabindex="0">Vikaon</span> sipariş kontrolü, stok uygunluğu, ürün ayırma, müşteri bilgilendirme ve operasyonel yönlendirme.</p>
+</div>
+<div>
+<p class="text-xs font-black uppercase tracking-[0.18em] text-luxury-purple">Kargo ve Teslimat — Sena</p>
+<p class="mt-2 text-sm leading-6 text-slate-600"><span aria-label="Paraşüt: Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." class="glossary-term" data-tooltip="Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." tabindex="0">Paraşüt</span> faturası, <span aria-label="Yurtiçi Kargo: Siparişlerin müşteriye veya mağazaya gönderilmesi için kullanılan kargo hizmetidir." class="glossary-term" data-tooltip="Siparişlerin müşteriye veya mağazaya gönderilmesi için kullanılan kargo hizmetidir." tabindex="0">Yurtiçi Kargo</span> etiketi, paketleme, çıkış kontrolü, teslimat ve iade/değişim süreci.</p>
+</div>
+<div>
+<p class="text-xs font-black uppercase tracking-[0.18em] text-luxury-purple">Dijital Marketing ve Raporlama — Semay</p>
+<p class="mt-2 text-sm leading-6 text-slate-600">Reklam yönetimi, trafik, dönüşüm oranı, ciro, ürün performansı, sepet ortalaması ve stok devir hızı analizi.</p>
+</div>
+</div>
+</div>
+</article>
+<article class="print-card overflow-hidden rounded-[2rem] border border-black/5 bg-white shadow-card">
+<div class="bg-luxury-emerald p-7 text-white">
+<p class="text-[11px] font-black uppercase tracking-[0.22em] text-white/60"><span aria-label="B2B: Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." class="glossary-term" data-tooltip="Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." tabindex="0">B2B</span> Operasyon Modeli</p>
+<h2 class="mt-2 font-serif text-3xl">Mağaza, Bayi ve Toplu Satış</h2>
+</div>
+<div class="p-7">
+<div class="space-y-7">
+<div>
+<p class="text-xs font-black uppercase tracking-[0.18em] text-luxury-emerald">Satış ve <span aria-label="Creative Strateji: Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." class="glossary-term" data-tooltip="Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." tabindex="0">Creative Strateji</span> — Doğal</p>
+<p class="mt-2 text-sm leading-6 text-slate-600">Hedef mağaza yaklaşımı, ürün sunumu, satış dili, mağaza iletişimi, B2B kampanya fikri ve satış destek materyallerinin yönü.</p>
+</div>
+<div>
+<p class="text-xs font-black uppercase tracking-[0.18em] text-luxury-emerald">Sipariş ve Cari Süreç — Sena</p>
+<p class="mt-2 text-sm leading-6 text-slate-600">Mağaza siparişi, <span aria-label="stok rezervasyonu: Belirli ürün adetlerinin başka siparişlere kapatılarak bir müşteri veya mağaza için ayrılmasıdır." class="glossary-term" data-tooltip="Belirli ürün adetlerinin başka siparişlere kapatılarak bir müşteri veya mağaza için ayrılmasıdır." tabindex="0">stok rezervasyonu</span>, <span aria-label="cari borç/alacak: Bir mağaza veya müşteriden alınacak ve ödenecek tutarların karşılıklı takibidir." class="glossary-term" data-tooltip="Bir mağaza veya müşteriden alınacak ve ödenecek tutarların karşılıklı takibidir." tabindex="0">cari borç/alacak</span> takibi, fatura ve <span aria-label="irsaliye: Sevk edilen ürünlerin adını, miktarını ve teslimat bilgilerini gösteren resmi taşıma belgesidir." class="glossary-term" data-tooltip="Sevk edilen ürünlerin adını, miktarını ve teslimat bilgilerini gösteren resmi taşıma belgesidir." tabindex="0">irsaliye</span> hazırlığı.</p>
+</div>
+<div>
+<p class="text-xs font-black uppercase tracking-[0.18em] text-luxury-emerald">Toplu Sevkiyat — Sena</p>
+<p class="mt-2 text-sm leading-6 text-slate-600">Ürün toplama, <span aria-label="barkod: Ürünün kodunu, varyantını ve stok bilgisini hızlıca tanımaya yarayan işarettir." class="glossary-term" data-tooltip="Ürünün kodunu, varyantını ve stok bilgisini hızlıca tanımaya yarayan işarettir." tabindex="0">barkod</span> kontrolü, koli planı, sevkiyat teslimi ve mağaza teyidi.</p>
+</div>
+<div>
+<p class="text-xs font-black uppercase tracking-[0.18em] text-luxury-emerald">Dijital Performans ve Analiz — Semay</p>
+<p class="mt-2 text-sm leading-6 text-slate-600">Mağaza bazlı satış, ürün sell-through oranı, tekrar sipariş, bölgesel performans, stok önerileri ve yönetim raporlaması.</p>
+</div>
+</div>
+</div>
+</article>
+</section>
+<!-- RESPONSIBILITY MATRIX -->
+<section class="print-card overflow-hidden rounded-[2rem] border border-black/5 bg-white shadow-luxury">
+<div class="border-b border-black/5 p-7 md:p-9">
+<p class="text-xs font-black uppercase tracking-[0.24em] text-luxury-gold">Kim, Neyi Yönetiyor?</p>
+<h2 class="mt-2 font-serif text-3xl md:text-4xl">Operasyonel Sorumluluk Matrisi</h2>
+</div>
+<div class="overflow-x-auto">
+<table class="min-w-[980px] w-full text-left text-sm">
+<thead class="bg-luxury-ivory text-xs uppercase tracking-wider text-slate-500">
+<tr>
+<th class="px-6 py-4 font-black">Süreç</th>
+<th class="px-6 py-4 font-black">Zeynep</th><th class="px-6 py-4 font-black">Doğal</th>
+<th class="px-6 py-4 font-black">Sena</th>
+<th class="px-6 py-4 font-black">Semay</th>
+<th class="px-6 py-4 font-black">Sistem</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-black/5">
+<tr>
+<td class="px-6 py-5 font-bold">Üretim Planlama</td>
+<td class="px-6 py-5"><span class="rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-700">Ana Sorumlu</span></td><td class="px-6 py-5 text-slate-400">Satış yönü sağlar</td>
+<td class="px-6 py-5 text-slate-400">Bilgilendirilir</td>
+<td class="px-6 py-5 text-slate-400">Talep ve performans verisi sağlar</td>
+<td class="px-6 py-5">Excel Üretim Takip Listeleri</td>
+</tr>
+<tr>
+<td class="px-6 py-5 font-bold">Kalite &amp; <span aria-label="Barkod: Ürünün kodunu, varyantını ve stok bilgisini hızlıca tanımaya yarayan işarettir." class="glossary-term" data-tooltip="Ürünün kodunu, varyantını ve stok bilgisini hızlıca tanımaya yarayan işarettir." tabindex="0">Barkod</span></td>
+<td class="px-6 py-5">Kalite onayı</td><td class="px-6 py-5 text-slate-400">Ürün sunum dili kontrolü</td>
+<td class="px-6 py-5"><span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Stok kabul</span></td>
+<td class="px-6 py-5 text-slate-400">Ürün verisi kontrolü</td>
+<td class="px-6 py-5"><span aria-label="Paraşüt: Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." class="glossary-term" data-tooltip="Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." tabindex="0">Paraşüt</span> / <span aria-label="Barkod: Ürünün kodunu, varyantını ve stok bilgisini hızlıca tanımaya yarayan işarettir." class="glossary-term" data-tooltip="Ürünün kodunu, varyantını ve stok bilgisini hızlıca tanımaya yarayan işarettir." tabindex="0">Barkod</span></td>
+</tr>
+<tr>
+<td class="px-6 py-5 font-bold"><span aria-label="B2C: Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." class="glossary-term" data-tooltip="Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." tabindex="0">B2C</span> Sipariş</td>
+<td class="px-6 py-5 text-slate-400">Stok tedarik desteği</td><td class="px-6 py-5"><span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">Satış &amp; <span aria-label="creative strateji: Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." class="glossary-term" data-tooltip="Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." tabindex="0">creative strateji</span></span></td>
+<td class="px-6 py-5"><span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Operasyon</span></td>
+<td class="px-6 py-5"><span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">Dijital büyüme &amp; analiz</span></td>
+<td class="px-6 py-5"><span aria-label="Vikaon: Jutsack e-ticaret sitesindeki ürün, sipariş ve müşteri süreçlerinin yönetildiği altyapıdır." class="glossary-term" data-tooltip="Jutsack e-ticaret sitesindeki ürün, sipariş ve müşteri süreçlerinin yönetildiği altyapıdır." tabindex="0">Vikaon</span> / <span aria-label="Paraşüt: Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." class="glossary-term" data-tooltip="Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." tabindex="0">Paraşüt</span></td>
+</tr>
+<tr>
+<td class="px-6 py-5 font-bold"><span aria-label="B2B: Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." class="glossary-term" data-tooltip="Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." tabindex="0">B2B</span> Mağaza</td>
+<td class="px-6 py-5 text-slate-400">Ürün tedariki</td><td class="px-6 py-5"><span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">Satış &amp; <span aria-label="creative strateji: Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." class="glossary-term" data-tooltip="Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." tabindex="0">creative strateji</span></span></td>
+<td class="px-6 py-5"><span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Satış &amp; sevkiyat</span></td>
+<td class="px-6 py-5"><span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">Dijital destek &amp; analiz</span></td>
+<td class="px-6 py-5"><span aria-label="Paraşüt: Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." class="glossary-term" data-tooltip="Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." tabindex="0">Paraşüt</span> / Cari</td>
+</tr>
+<tr>
+<td class="px-6 py-5 font-bold">Kargo &amp; İade</td>
+<td class="px-6 py-5 text-slate-400">Ürün kalite desteği</td><td class="px-6 py-5 text-slate-400">Müşteri dili desteği</td>
+<td class="px-6 py-5"><span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">Ana Sorumlu</span></td>
+<td class="px-6 py-5 text-slate-400">Müşteri deneyimi analizi</td>
+<td class="px-6 py-5"><span aria-label="Yurtiçi Kargo: Siparişlerin müşteriye veya mağazaya gönderilmesi için kullanılan kargo hizmetidir." class="glossary-term" data-tooltip="Siparişlerin müşteriye veya mağazaya gönderilmesi için kullanılan kargo hizmetidir." tabindex="0">Yurtiçi Kargo</span></td>
+</tr>
+<tr>
+<td class="px-6 py-5 font-bold">Marketing &amp; Raporlama</td>
+<td class="px-6 py-5 text-slate-400">Üretim verisi sağlar</td><td class="px-6 py-5"><span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">Pazarlama &amp; creative</span></td>
+<td class="px-6 py-5 text-slate-400">Satış / stok verisi sağlar</td>
+<td class="px-6 py-5"><span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">Dijital analiz &amp; raporlama</span></td>
+<td class="px-6 py-5"><span aria-label="Analytics: Web sitesi ve kampanya verilerinin ölçülüp yorumlandığı analiz araçları ve raporlardır." class="glossary-term" data-tooltip="Web sitesi ve kampanya verilerinin ölçülüp yorumlandığı analiz araçları ve raporlardır." tabindex="0">Analytics</span> / <span aria-label="Ads: Google, Meta veya benzeri platformlarda yönetilen ücretli reklam çalışmalarını ifade eder." class="glossary-term" data-tooltip="Google, Meta veya benzeri platformlarda yönetilen ücretli reklam çalışmalarını ifade eder." tabindex="0">Ads</span> / Raporlar</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- GOLDEN RULES -->
+<section class="print-card rounded-[2rem] border border-luxury-gold/20 bg-gradient-to-br from-luxury-black to-[#202018] p-7 text-white shadow-luxury md:p-10">
+<div class="mb-8">
+<p class="text-xs font-black uppercase tracking-[0.24em] text-luxury-goldLight">Operasyon Standardı</p>
+<h2 class="mt-2 font-serif text-3xl md:text-4xl">Jutsack’in 3 Altın Kuralı</h2>
+</div>
+<div class="grid gap-5 md:grid-cols-3">
+<article class="rounded-3xl border border-white/10 bg-white/[0.05] p-6">
+<span class="font-serif text-5xl text-luxury-goldLight">01</span>
+<h3 class="mt-5 text-lg font-black"><span aria-label="Barkod: Ürünün kodunu, varyantını ve stok bilgisini hızlıca tanımaya yarayan işarettir." class="glossary-term" data-tooltip="Ürünün kodunu, varyantını ve stok bilgisini hızlıca tanımaya yarayan işarettir." tabindex="0">Barkod</span>suz Çıkış Yok</h3>
+<p class="mt-3 text-sm leading-6 text-white/55">Ürün <span aria-label="barkod: Ürünün kodunu, varyantını ve stok bilgisini hızlıca tanımaya yarayan işarettir." class="glossary-term" data-tooltip="Ürünün kodunu, varyantını ve stok bilgisini hızlıca tanımaya yarayan işarettir." tabindex="0">barkod</span>lanmadan atölyeden çıkamaz, depoya kabul edilemez ve kargolanamaz.</p>
+</article>
+<article class="rounded-3xl border border-white/10 bg-white/[0.05] p-6">
+<span class="font-serif text-5xl text-luxury-goldLight">02</span>
+<h3 class="mt-5 text-lg font-black">Sistem Otomasyonu</h3>
+<p class="mt-3 text-sm leading-6 text-white/55"><span aria-label="Vikaon: Jutsack e-ticaret sitesindeki ürün, sipariş ve müşteri süreçlerinin yönetildiği altyapıdır." class="glossary-term" data-tooltip="Jutsack e-ticaret sitesindeki ürün, sipariş ve müşteri süreçlerinin yönetildiği altyapıdır." tabindex="0">Vikaon</span> ve <span aria-label="Paraşüt: Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." class="glossary-term" data-tooltip="Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." tabindex="0">Paraşüt</span> entegre çalışır. Zorunlu hâller dışında manuel stok ve fatura girişi yapılmaz.</p>
+</article>
+<article class="rounded-3xl border border-white/10 bg-white/[0.05] p-6">
+<span class="font-serif text-5xl text-luxury-goldLight">03</span>
+<h3 class="mt-5 text-lg font-black">Düzenli Fiziksel Sayım</h3>
+<p class="mt-3 text-sm leading-6 text-white/55">Haftalık el okuyucu sayımı ile fiziksel stok ve <span aria-label="Paraşüt: Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." class="glossary-term" data-tooltip="Fatura, cari hesap, gelir-gider ve bazı stok işlemlerinin takip edildiği ön muhasebe sistemidir." tabindex="0">Paraşüt</span> stokları karşılaştırılır, farklar kapatılır.</p>
+</article>
+</div>
+</section>
+<!-- KPI -->
+<section class="grid gap-6 lg:grid-cols-[.8fr_1.2fr]">
+<article class="print-card rounded-[2rem] bg-luxury-gold p-7 text-luxury-black shadow-card md:p-9">
+<p class="text-xs font-black uppercase tracking-[0.22em] opacity-60">Yönetim Prensibi</p>
+<h2 class="mt-3 font-serif text-3xl">Ölçemediğimiz süreci yönetemeyiz.</h2>
+<p class="mt-5 text-sm leading-7 opacity-75">Üretim, stok, satış ve pazarlama verileri aynı raporlama düzeninde buluşmalıdır. <span aria-label="Doğal satış: Müşteriyi zorlamadan, ihtiyacını anlayarak ürünün faydasını doğru iletişimle anlatan satış yaklaşımıdır." class="glossary-term" data-tooltip="Müşteriyi zorlamadan, ihtiyacını anlayarak ürünün faydasını doğru iletişimle anlatan satış yaklaşımıdır." tabindex="0">Doğal satış</span> ve <span aria-label="creative strateji: Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." class="glossary-term" data-tooltip="Markanın kampanya fikrini, görsel yönünü, mesajını ve yaratıcı iletişim yaklaşımını belirleyen stratejidir." tabindex="0">creative strateji</span> değerlendirmesini, Semay haftalık ve aylık dijital performans görünümünü hazırlar.</p>
+</article>
+<article class="print-card rounded-[2rem] border border-black/5 bg-white p-7 shadow-card md:p-9">
+<p class="text-xs font-black uppercase tracking-[0.22em] text-luxury-gold">Temel <span aria-label="KPI: Key Performance Indicator: Bir sürecin başarısını ölçmek için izlenen temel performans göstergesidir." class="glossary-term" data-tooltip="Key Performance Indicator: Bir sürecin başarısını ölçmek için izlenen temel performans göstergesidir." tabindex="0">KPI</span> Seti</p>
+<div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
+<div class="rounded-2xl bg-luxury-ivory p-4"><p class="font-serif text-2xl">Üretim</p><p class="mt-1 text-xs text-slate-500"><span aria-label="Termin: Bir işin veya üretimin tamamlanması gereken son tarih ya da teslim süresidir." class="glossary-term" data-tooltip="Bir işin veya üretimin tamamlanması gereken son tarih ya da teslim süresidir." tabindex="0">Termin</span> uyumu</p></div>
+<div class="rounded-2xl bg-luxury-ivory p-4"><p class="font-serif text-2xl">Stok</p><p class="mt-1 text-xs text-slate-500">Sayım farkı</p></div>
+<div class="rounded-2xl bg-luxury-ivory p-4"><p class="font-serif text-2xl"><span aria-label="B2C: Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." class="glossary-term" data-tooltip="Business to Consumer: Markanın ürünü doğrudan son kullanıcıya satmasıdır." tabindex="0">B2C</span></p><p class="mt-1 text-xs text-slate-500"><span aria-label="Dönüşüm oranı: Siteyi ziyaret edenlerin yüzde kaçının sipariş verdiğini gösterir." class="glossary-term" data-tooltip="Siteyi ziyaret edenlerin yüzde kaçının sipariş verdiğini gösterir." tabindex="0">Dönüşüm oranı</span></p></div>
+<div class="rounded-2xl bg-luxury-ivory p-4"><p class="font-serif text-2xl"><span aria-label="B2B: Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." class="glossary-term" data-tooltip="Business to Business: Markanın ürünü mağaza, bayi veya başka bir işletmeye satmasıdır." tabindex="0">B2B</span></p><p class="mt-1 text-xs text-slate-500">Tekrar sipariş</p></div>
+<div class="rounded-2xl bg-luxury-ivory p-4"><p class="font-serif text-2xl">Kargo</p><p class="mt-1 text-xs text-slate-500">Aynı gün çıkış</p></div>
+<div class="rounded-2xl bg-luxury-ivory p-4"><p class="font-serif text-2xl"><span aria-label="Growth: Satış, müşteri kazanımı ve marka büyümesini hızlandıran strateji ve uygulamaların bütünüdür." class="glossary-term" data-tooltip="Satış, müşteri kazanımı ve marka büyümesini hızlandıran strateji ve uygulamaların bütünüdür." tabindex="0">Growth</span></p><p class="mt-1 text-xs text-slate-500"><span aria-label="ROAS: Return on Ad Spend: Reklama harcanan her 1 TL’nin kaç TL satış geliri oluşturduğunu gösterir." class="glossary-term" data-tooltip="Return on Ad Spend: Reklama harcanan her 1 TL’nin kaç TL satış geliri oluşturduğunu gösterir." tabindex="0">ROAS</span> / Ciro</p></div>
+</div>
+</article>
+</section>
+</main>
+<footer class="mt-4 border-t border-black/5 bg-white/60">
+<div class="mx-auto max-w-7xl px-5 py-8 text-center text-xs leading-6 text-slate-500 md:px-8">
+<p class="font-semibold text-luxury-ink">
+        Visual Communication &amp; Digital Transformation Specialist Semanur Ayyıldız tarafından düzenlenmiştir.
+      </p>
+<p class="mt-1">© 2026 Tüm hakları saklıdır.</p>
+</div>
+</footer>
+<div aria-hidden="true" id="global-tooltip" role="tooltip"></div>
+<script>
+(() => {
+  const tooltip = document.getElementById("global-tooltip");
+  const terms = document.querySelectorAll(".glossary-term");
+  let activeTerm = null;
+
+  function positionTooltip(term) {
+    const rect = term.getBoundingClientRect();
+    const margin = 12;
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+    left = Math.max(16, Math.min(left, window.innerWidth - tooltipRect.width - 16));
+
+    let top = rect.top - tooltipRect.height - margin;
+    if (top < 12) top = rect.bottom + margin;
+
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+  }
+
+  function showTooltip(term) {
+    if (!term) return;
+    if (activeTerm && activeTerm !== term) activeTerm.classList.remove("is-active");
+
+    activeTerm = term;
+    term.classList.add("is-active");
+    tooltip.textContent = term.dataset.tooltip || "";
+    tooltip.setAttribute("aria-hidden", "false");
+    tooltip.classList.add("is-visible");
+    requestAnimationFrame(() => positionTooltip(term));
+  }
+
+  function hideTooltip(term) {
+    if (term && activeTerm !== term) return;
+    if (activeTerm) activeTerm.classList.remove("is-active");
+
+    activeTerm = null;
+    tooltip.classList.remove("is-visible");
+    tooltip.setAttribute("aria-hidden", "true");
+  }
+
+  terms.forEach((term) => {
+    term.addEventListener("mouseenter", () => showTooltip(term));
+    term.addEventListener("mouseleave", () => hideTooltip(term));
+    term.addEventListener("focus", () => showTooltip(term));
+    term.addEventListener("blur", () => hideTooltip(term));
+    term.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (activeTerm === term && tooltip.classList.contains("is-visible")) {
+        hideTooltip(term);
+      } else {
+        showTooltip(term);
+      }
+    });
+  });
+
+  document.addEventListener("click", () => hideTooltip());
+  window.addEventListener("scroll", () => {
+    if (activeTerm) positionTooltip(activeTerm);
+  }, { passive: true });
+  window.addEventListener("resize", () => {
+    if (activeTerm) positionTooltip(activeTerm);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") hideTooltip();
+  });
+})();
+</script>
+</body>
+</html>
